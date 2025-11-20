@@ -9,8 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import static com.university.management.system.utils.Constants.API_VERSION;
+
 @RestController
-@RequestMapping("/api/employees")
+@RequestMapping(API_VERSION + "/employees")
 @RequiredArgsConstructor
 public class EmployeeController {
 

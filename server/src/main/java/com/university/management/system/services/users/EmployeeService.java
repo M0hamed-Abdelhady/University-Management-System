@@ -1,9 +1,11 @@
 package com.university.management.system.services.users;
 
+import com.university.management.system.exceptions.ResourceNotFoundException;
+
 import com.university.management.system.dtos.ApiResponse;
 import com.university.management.system.dtos.users.EmployeeDto;
 import com.university.management.system.dtos.users.EmployeeRequestDto;
-import com.university.management.system.dtos.users.PersonDto;
+import com.university.management.system.dtos.users.PersonRequestDto;
 import com.university.management.system.models.users.Employee;
 import com.university.management.system.models.users.Person;
 import com.university.management.system.models.users.PersonRole;
@@ -60,7 +62,7 @@ public class EmployeeService implements IEmployeeService {
     @Override
     public ResponseEntity<ApiResponse> getEmployeeById(String id) {
         Employee employee = employeeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + id));
 
         return ResponseEntityBuilder.create()
                 .withStatus(HttpStatus.OK)
@@ -76,45 +78,37 @@ public class EmployeeService implements IEmployeeService {
             throw new RuntimeException("Email already exists: " + employeeRequestDto.getEmail());
         }
 
-        PersonDto personDto = PersonDto.builder()
+        PersonRequestDto personRequestDto = PersonRequestDto.builder()
                 .firstName(employeeRequestDto.getFirstName())
                 .lastName(employeeRequestDto.getLastName())
                 .email(employeeRequestDto.getEmail())
+                .password(employeeRequestDto.getPassword())
                 .phone(employeeRequestDto.getPhone())
                 .address(employeeRequestDto.getAddress())
                 .dateOfBirth(employeeRequestDto.getDateOfBirth())
                 .build();
 
-        personService.createPerson(personDto);
-        Person person = personRepository.findByEmail(employeeRequestDto.getEmail()).orElseThrow();
-
-        Employee employee = Employee.builder()
-                .person(person)
-                .employeeNumber(UUID.randomUUID().toString()) // Generate or use from DTO if provided? DTO doesn't have
-                                                              // it in request usually, but let's check. DTO has it? No,
-                                                              // RequestDto doesn't have it.
-                .hireDate(employeeRequestDto.getHireDate())
-                .salary(employeeRequestDto.getSalary())
-                .position(employeeRequestDto.getPosition())
-                .status(employeeRequestDto.getStatus())
-                .build();
-
-        person.setPassword(passwordEncoder.encode("Password123!"));
-
-        // Assign EMPLOYEE role (or ADMIN based on position? User said "other rule
-        // should be created by an admin". I'll assume generic EMPLOYEE role for now, or
-        // maybe map Position to Role?)
-        // For now, let's assign Role.EMPLOYEE (if it exists) or Role.ADMIN if position
-        // is ADMIN?
-        // Let's check Role enum.
+        personService.createPerson(personRequestDto);
+        Person person = personRepository.findByEmail(employeeRequestDto.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("Person not found with email: " + employeeRequestDto.getEmail()));
 
         PersonRole employeeRole = PersonRole.builder()
                 .person(person)
                 .role(Role.EMPLOYEE)
                 .build();
-        // I need to check Role enum.
 
+        personRoleRepository.save(employeeRole);
         person.setPersonRoles(Collections.singleton(employeeRole));
+        person = personRepository.save(person);
+
+        Employee employee = Employee.builder()
+                .person(person)
+                .employeeNumber(UUID.randomUUID().toString())
+                .hireDate(employeeRequestDto.getHireDate())
+                .salary(employeeRequestDto.getSalary())
+                .position(employeeRequestDto.getPosition())
+                .status(employeeRequestDto.getStatus())
+                .build();
 
         Employee savedEmployee = employeeRepository.save(employee);
 
@@ -129,7 +123,7 @@ public class EmployeeService implements IEmployeeService {
     @Transactional
     public ResponseEntity<ApiResponse> updateEmployee(String id, EmployeeRequestDto employeeRequestDto) {
         Employee employee = employeeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + id));
 
         Person person = employee.getPerson();
         person.setFirstName(employeeRequestDto.getFirstName());
@@ -137,15 +131,13 @@ public class EmployeeService implements IEmployeeService {
         person.setPhone(employeeRequestDto.getPhone());
         person.setAddress(employeeRequestDto.getAddress());
         person.setDateOfBirth(employeeRequestDto.getDateOfBirth());
-        // Email update? Usually restricted or needs verification. I'll skip for now or
-        // allow it.
+        personRepository.save(person);
 
         employee.setHireDate(employeeRequestDto.getHireDate());
         employee.setSalary(employeeRequestDto.getSalary());
         employee.setPosition(employeeRequestDto.getPosition());
         employee.setStatus(employeeRequestDto.getStatus());
 
-        personRepository.save(person);
         Employee savedEmployee = employeeRepository.save(employee);
 
         return ResponseEntityBuilder.create()
@@ -159,10 +151,15 @@ public class EmployeeService implements IEmployeeService {
     @Transactional
     public ResponseEntity<ApiResponse> deleteEmployee(String id) {
         Employee employee = employeeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + id));
+
+        Person person = employee.getPerson();
+
+        if (personRoleRepository.countPersonRoleByPersonId(person.getId()) == 1) {
+            personRepository.delete(person);
+        }
 
         employeeRepository.delete(employee);
-        // Optionally delete person if no other roles?
 
         return ResponseEntityBuilder.create()
                 .withStatus(HttpStatus.OK)

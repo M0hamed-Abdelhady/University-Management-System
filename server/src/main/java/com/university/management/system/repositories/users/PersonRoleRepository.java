@@ -18,4 +18,6 @@ public interface PersonRoleRepository extends JpaRepository<PersonRole, String> 
     Page<PersonRole> findByRole(Role role, Pageable pageable);
 
     List<PersonRole> findByPersonAndRole(Person person, Role role);
+
+    long countPersonRoleByPersonId(String personId);
 }

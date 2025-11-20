@@ -1,7 +1,7 @@
 package com.university.management.system.services.users;
 
 import com.university.management.system.dtos.ApiResponse;
-import com.university.management.system.dtos.users.PersonDto;
+import com.university.management.system.dtos.users.PersonRequestDto;
 import org.springframework.http.ResponseEntity;
 
 public interface IPersonService {
@@ -9,9 +9,9 @@ public interface IPersonService {
 
     ResponseEntity<ApiResponse> getPersonById(String id);
 
-    ResponseEntity<ApiResponse> createPerson(PersonDto personDto);
+    ResponseEntity<ApiResponse> createPerson(PersonRequestDto personRequestDto);
 
-    ResponseEntity<ApiResponse> updatePerson(String id, PersonDto personDto);
+    ResponseEntity<ApiResponse> updatePerson(String id, PersonRequestDto personRequestDto);
 
     ResponseEntity<ApiResponse> deletePerson(String id);
 }

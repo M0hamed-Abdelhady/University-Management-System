@@ -9,15 +9,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import static com.university.management.system.utils.Constants.API_VERSION;
+
 @RestController
-@RequestMapping("/api/courses")
+@RequestMapping(API_VERSION + "/courses")
 @RequiredArgsConstructor
 public class CourseController {
 
     private final ICourseService courseService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE', 'STUDENT')")
     public ResponseEntity<ApiResponse> getAllCourses(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
@@ -25,7 +26,6 @@ public class CourseController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE', 'STUDENT')")
     public ResponseEntity<ApiResponse> getCourseById(@PathVariable String id) {
         return courseService.getCourseById(id);
     }
@@ -39,7 +39,7 @@ public class CourseController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> updateCourse(@PathVariable String id,
-            @Valid @RequestBody CourseRequestDto courseRequestDto) {
+                                                    @Valid @RequestBody CourseRequestDto courseRequestDto) {
         return courseService.updateCourse(id, courseRequestDto);
     }
 

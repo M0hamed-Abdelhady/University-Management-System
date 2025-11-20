@@ -16,7 +16,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class EmployeeDto {
     private String id;
-    private PersonDto person;
+    private PersonRequestDto person;
     private String employeeId;
     private LocalDate hireDate;
     private BigDecimal salary;

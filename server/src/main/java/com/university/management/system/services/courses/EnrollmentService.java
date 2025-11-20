@@ -3,13 +3,14 @@ package com.university.management.system.services.courses;
 import com.university.management.system.dtos.ApiResponse;
 import com.university.management.system.dtos.courses.EnrollmentDto;
 import com.university.management.system.dtos.courses.EnrollmentRequestDto;
+import com.university.management.system.exceptions.ResourceNotFoundException;
 import com.university.management.system.models.courses.CourseClass;
 import com.university.management.system.models.courses.Enrollment;
-import com.university.management.system.models.courses.EnrollmentStatus;
 import com.university.management.system.models.users.Student;
 import com.university.management.system.repositories.courses.CourseClassRepository;
 import com.university.management.system.repositories.courses.EnrollmentRepository;
 import com.university.management.system.repositories.users.StudentRepository;
+import com.university.management.system.utils.AuthUtils;
 import com.university.management.system.utils.RepositoryUtils;
 import com.university.management.system.utils.ResponseEntityBuilder;
 import com.university.management.system.utils.mappers.courses.CourseMapper;
@@ -33,6 +34,7 @@ public class EnrollmentService implements IEnrollmentService {
     private final CourseClassRepository courseClassRepository;
     private final CourseMapper courseMapper;
     private final RepositoryUtils repositoryUtils;
+    private final AuthUtils authUtils;
 
     @Override
     public ResponseEntity<ApiResponse> getAllEnrollments(Integer page, Integer size) {
@@ -52,14 +54,8 @@ public class EnrollmentService implements IEnrollmentService {
 
     @Override
     public ResponseEntity<ApiResponse> getEnrollmentById(String id) {
-        Enrollment enrollment = enrollmentRepository.findById(id).orElse(null);
-
-        if (enrollment == null) {
-            return ResponseEntityBuilder.create()
-                    .withStatus(HttpStatus.NOT_FOUND)
-                    .withMessage("Enrollment not found")
-                    .build();
-        }
+        Enrollment enrollment = enrollmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Enrollment not found"));
 
         return ResponseEntityBuilder.create()
                 .withStatus(HttpStatus.OK)
@@ -70,24 +66,12 @@ public class EnrollmentService implements IEnrollmentService {
 
     @Override
     @Transactional
-    public ResponseEntity<ApiResponse> createEnrollment(EnrollmentRequestDto requestDto) {
-        Student student = studentRepository.findById(requestDto.getStudentId()).orElse(null);
+    public ResponseEntity<ApiResponse> createEnrollment(EnrollmentRequestDto enrollmentRequestDto) {
+        Student student = studentRepository.findById(enrollmentRequestDto.getStudentId())
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
 
-        if (student == null) {
-            return ResponseEntityBuilder.create()
-                    .withStatus(HttpStatus.NOT_FOUND)
-                    .withMessage("Student not found")
-                    .build();
-        }
-
-        CourseClass courseClass = courseClassRepository.findById(requestDto.getClassId()).orElse(null);
-
-        if (courseClass == null) {
-            return ResponseEntityBuilder.create()
-                    .withStatus(HttpStatus.NOT_FOUND)
-                    .withMessage("Course Class not found")
-                    .build();
-        }
+        CourseClass courseClass = courseClassRepository.findById(enrollmentRequestDto.getClassId())
+                .orElseThrow(() -> new ResourceNotFoundException("Course Class not found"));
 
         if (courseClass.getCurrentCapacity() >= courseClass.getMaxCapacity()) {
             return ResponseEntityBuilder.create()
@@ -99,8 +83,8 @@ public class EnrollmentService implements IEnrollmentService {
         Enrollment enrollment = Enrollment.builder()
                 .student(student)
                 .courseClass(courseClass)
-                .grade(requestDto.getGrade())
-                .status(requestDto.getStatus())
+                .grade(enrollmentRequestDto.getGrade())
+                .status(enrollmentRequestDto.getStatus())
                 .build();
 
         Enrollment savedEnrollment = enrollmentRepository.save(enrollment);
@@ -117,25 +101,19 @@ public class EnrollmentService implements IEnrollmentService {
 
     @Override
     @Transactional
-    public ResponseEntity<ApiResponse> updateEnrollment(String id, EnrollmentRequestDto requestDto) {
-        Enrollment enrollment = enrollmentRepository.findById(id).orElse(null);
+    public ResponseEntity<ApiResponse> updateEnrollment(String id, EnrollmentRequestDto enrollmentRequestDto) {
+        Enrollment enrollment = enrollmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Enrollment not found"));
 
-        if (enrollment == null) {
-            return ResponseEntityBuilder.create()
-                    .withStatus(HttpStatus.NOT_FOUND)
-                    .withMessage("Enrollment not found")
-                    .build();
-        }
-
-        if (!enrollment.getStudent().getId().equals(requestDto.getStudentId())) {
-            Student student = studentRepository.findById(requestDto.getStudentId())
-                    .orElseThrow(() -> new RuntimeException("Student not found"));
+        if (!enrollment.getStudent().getId().equals(enrollmentRequestDto.getStudentId())) {
+            Student student = studentRepository.findById(enrollmentRequestDto.getStudentId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
             enrollment.setStudent(student);
         }
 
-        if (!enrollment.getCourseClass().getId().equals(requestDto.getClassId())) {
-            CourseClass courseClass = courseClassRepository.findById(requestDto.getClassId())
-                    .orElseThrow(() -> new RuntimeException("Course Class not found"));
+        if (!enrollment.getCourseClass().getId().equals(enrollmentRequestDto.getClassId())) {
+            CourseClass courseClass = courseClassRepository.findById(enrollmentRequestDto.getClassId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Course Class not found"));
 
             if (courseClass.getCurrentCapacity() >= courseClass.getMaxCapacity()) {
                 throw new RuntimeException("New Class is full");
@@ -148,8 +126,8 @@ public class EnrollmentService implements IEnrollmentService {
             enrollment.setCourseClass(courseClass);
         }
 
-        enrollment.setGrade(requestDto.getGrade());
-        enrollment.setStatus(requestDto.getStatus());
+        enrollment.setGrade(enrollmentRequestDto.getGrade());
+        enrollment.setStatus(enrollmentRequestDto.getStatus());
 
         Enrollment savedEnrollment = enrollmentRepository.save(enrollment);
 
@@ -163,14 +141,8 @@ public class EnrollmentService implements IEnrollmentService {
     @Override
     @Transactional
     public ResponseEntity<ApiResponse> deleteEnrollment(String id) {
-        Enrollment enrollment = enrollmentRepository.findById(id).orElse(null);
-
-        if (enrollment == null) {
-            return ResponseEntityBuilder.create()
-                    .withStatus(HttpStatus.NOT_FOUND)
-                    .withMessage("Enrollment not found")
-                    .build();
-        }
+        Enrollment enrollment = enrollmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Enrollment not found"));
 
         CourseClass courseClass = enrollment.getCourseClass();
         courseClass.setCurrentCapacity(courseClass.getCurrentCapacity() - 1);
@@ -186,68 +158,9 @@ public class EnrollmentService implements IEnrollmentService {
 
     @Override
     @Transactional
-    public ResponseEntity<ApiResponse> enrollStudent(String studentId, String classId) {
-        if (!studentRepository.existsById(studentId)) {
-            return ResponseEntityBuilder.create()
-                    .withStatus(HttpStatus.NOT_FOUND)
-                    .withMessage("Student not found")
-                    .build();
-        }
-        if (!courseClassRepository.existsById(classId)) {
-            return ResponseEntityBuilder.create()
-                    .withStatus(HttpStatus.NOT_FOUND)
-                    .withMessage("Course Class not found")
-                    .build();
-        }
-
-        EnrollmentRequestDto requestDto = EnrollmentRequestDto.builder()
-                .studentId(studentId)
-                .classId(classId)
-                .status(EnrollmentStatus.ENROLLED)
-                .build();
-        return createEnrollment(requestDto);
-    }
-
-    @Override
-    @Transactional
-    public ResponseEntity<ApiResponse> dropStudent(String studentId, String enrollmentId) {
-        if (!studentRepository.existsById(studentId)) {
-            return ResponseEntityBuilder.create()
-                    .withStatus(HttpStatus.NOT_FOUND)
-                    .withMessage("Student not found")
-                    .build();
-        }
-
-        Enrollment enrollment = enrollmentRepository.findById(enrollmentId).orElse(null);
-
-        if (enrollment == null) {
-            return ResponseEntityBuilder.create()
-                    .withStatus(HttpStatus.NOT_FOUND)
-                    .withMessage("Enrollment not found")
-                    .build();
-        }
-
-        if (!enrollment.getStudent().getId().equals(studentId)) {
-            return ResponseEntityBuilder.create()
-                    .withStatus(HttpStatus.BAD_REQUEST)
-                    .withMessage("Enrollment does not belong to the specified student")
-                    .build();
-        }
-
-        return deleteEnrollment(enrollmentId);
-    }
-
-    @Override
-    @Transactional
     public ResponseEntity<ApiResponse> updateGrade(String id, String grade) {
-        Enrollment enrollment = enrollmentRepository.findById(id).orElse(null);
-
-        if (enrollment == null) {
-            return ResponseEntityBuilder.create()
-                    .withStatus(HttpStatus.NOT_FOUND)
-                    .withMessage("Enrollment not found")
-                    .build();
-        }
+        Enrollment enrollment = enrollmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Enrollment not found"));
 
         enrollment.setGrade(grade);
         Enrollment savedEnrollment = enrollmentRepository.save(enrollment);

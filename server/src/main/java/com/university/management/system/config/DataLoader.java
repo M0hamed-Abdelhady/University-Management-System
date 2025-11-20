@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.Set;
 
 @Component
-@Profile("!test")
+@Profile("test")
 @AllArgsConstructor
 public class DataLoader implements CommandLineRunner {
     private final PersonRepository personRepository;

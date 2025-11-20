@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class StudentDto {
     private String id;
-    private PersonDto person;
+    private PersonRequestDto person;
     private String studentNumber;
     private String major;
     private Integer academicYear;

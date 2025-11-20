@@ -15,4 +15,12 @@ public class AuthUtils {
         }
         return null;
     }
+
+    public Person getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof Person) {
+            return (Person) authentication.getPrincipal();
+        }
+        return null;
+    }
 }

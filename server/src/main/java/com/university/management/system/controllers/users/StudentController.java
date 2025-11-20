@@ -10,8 +10,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import static com.university.management.system.utils.Constants.API_VERSION;
+
 @RestController
-@RequestMapping("/api/students")
+@RequestMapping(API_VERSION + "/students")
 @RequiredArgsConstructor
 public class StudentController {
 
@@ -27,7 +29,6 @@ public class StudentController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE', 'STUDENT')")
     public ResponseEntity<ApiResponse> getStudentById(@PathVariable String id) {
         return studentService.getStudentById(id);
     }
@@ -52,15 +53,20 @@ public class StudentController {
         return studentService.deleteStudent(id);
     }
 
-    @PostMapping("/{studentId}/enroll")
-    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE', 'STUDENT')")
-    public ResponseEntity<ApiResponse> enrollStudent(@PathVariable String studentId, @RequestParam String classId) {
-        return enrollmentService.enrollStudent(studentId, classId);
+    @GetMapping("/enrollments")
+    public ResponseEntity<ApiResponse> getStudentEnrollments(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "20") Integer size) {
+        return studentService.getStudentEnrollments(page, size);
     }
 
-    @PostMapping("/{studentId}/drop/{enrollmentId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE', 'STUDENT')")
-    public ResponseEntity<ApiResponse> dropStudent(@PathVariable String studentId, @PathVariable String enrollmentId) {
-        return enrollmentService.dropStudent(studentId, enrollmentId);
+    @PostMapping("/enroll")
+    public ResponseEntity<ApiResponse> enrollStudent(@RequestParam String classId) {
+        return studentService.enrollStudent(classId);
+    }
+
+    @PostMapping("/drop/{enrollmentId}")
+    public ResponseEntity<ApiResponse> dropStudent(@PathVariable String enrollmentId) {
+        return studentService.dropStudent(enrollmentId);
     }
 }

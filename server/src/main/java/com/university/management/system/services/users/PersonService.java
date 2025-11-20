@@ -1,7 +1,7 @@
 package com.university.management.system.services.users;
 
 import com.university.management.system.dtos.ApiResponse;
-import com.university.management.system.dtos.users.PersonDto;
+import com.university.management.system.dtos.users.PersonRequestDto;
 import com.university.management.system.models.users.Person;
 import com.university.management.system.repositories.users.PersonRepository;
 import com.university.management.system.repositories.users.PersonRoleRepository;
@@ -35,7 +35,7 @@ public class PersonService implements IPersonService {
         Pageable pageable = repositoryUtils.getPageable(page, size, Sort.Direction.ASC, "createdAt");
         Page<Person> persons = personRepository.findAll(pageable);
 
-        List<PersonDto> response = persons
+        List<PersonRequestDto> response = persons
                 .map(userMapper::toPersonDto)
                 .toList();
 
@@ -62,14 +62,12 @@ public class PersonService implements IPersonService {
 
     @Override
     @Transactional
-    public ResponseEntity<ApiResponse> createPerson(PersonDto personDto) {
-        if (personRepository.existsByEmail(personDto.getEmail())) {
-            throw new RuntimeException("Email already exists: " + personDto.getEmail());
+    public ResponseEntity<ApiResponse> createPerson(PersonRequestDto personRequestDto) {
+        if (personRepository.existsByEmail(personRequestDto.getEmail())) {
+            throw new RuntimeException("Email already exists: " + personRequestDto.getEmail());
         }
 
-        Person person = userMapper.toPerson(personDto);
-        person.setPassword(passwordEncoder.encode("Password123!"));
-
+        Person person = userMapper.toPerson(personRequestDto);
         Person savedPerson = personRepository.save(person);
 
         return ResponseEntityBuilder.create()
@@ -81,8 +79,21 @@ public class PersonService implements IPersonService {
 
     @Override
     @Transactional
-    public ResponseEntity<ApiResponse> updatePerson(String id, PersonDto personDto) {
-        return null;
+    public ResponseEntity<ApiResponse> updatePerson(String id, PersonRequestDto personRequestDto) {
+        Person person = personRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Person not found with id: " + id));
+        person.setFirstName(personRequestDto.getFirstName());
+        person.setLastName(personRequestDto.getLastName());
+        person.setEmail(personRequestDto.getEmail());
+        person.setPhone(personRequestDto.getPhone());
+        person.setAddress(personRequestDto.getAddress());
+        person = personRepository.save(person);
+
+        return ResponseEntityBuilder.create()
+                .withStatus(HttpStatus.OK)
+                .withData("Person", userMapper.toPersonDto(person))
+                .withMessage("Person updated successfully")
+                .build();
     }
 
     @Override

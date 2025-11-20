@@ -9,8 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import static com.university.management.system.utils.Constants.API_VERSION;
+
 @RestController
-@RequestMapping("/api/enrollments")
+@RequestMapping(API_VERSION + "/enrollments")
 @RequiredArgsConstructor
 public class EnrollmentController {
 
@@ -25,7 +27,6 @@ public class EnrollmentController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE', 'STUDENT')")
     public ResponseEntity<ApiResponse> getEnrollmentById(@PathVariable String id) {
         return enrollmentService.getEnrollmentById(id);
     }
@@ -39,7 +40,7 @@ public class EnrollmentController {
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     public ResponseEntity<ApiResponse> updateEnrollment(@PathVariable String id,
-            @Valid @RequestBody EnrollmentRequestDto requestDto) {
+                                                        @Valid @RequestBody EnrollmentRequestDto requestDto) {
         return enrollmentService.updateEnrollment(id, requestDto);
     }
 

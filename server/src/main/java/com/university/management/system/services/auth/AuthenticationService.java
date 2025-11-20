@@ -3,6 +3,7 @@ package com.university.management.system.services.auth;
 import com.university.management.system.dtos.ApiResponse;
 import com.university.management.system.dtos.auth.AuthResponse;
 import com.university.management.system.dtos.auth.LoginRequest;
+import com.university.management.system.dtos.auth.ProfileResponse;
 import com.university.management.system.dtos.auth.RegisterRequest;
 import com.university.management.system.models.users.Person;
 import com.university.management.system.models.users.PersonRole;
@@ -100,12 +101,72 @@ public class AuthenticationService implements IAuthenticationService {
 
     @Override
     public ResponseEntity<ApiResponse> refreshToken(String token) {
-        return null;
+        if (token == null || token.isEmpty()) {
+            return ResponseEntityBuilder.create()
+                    .withStatus(HttpStatus.BAD_REQUEST)
+                    .withMessage("Token is required")
+                    .build();
+        }
+
+        try {
+            String jwt = token;
+            if (token.startsWith("Bearer ")) {
+                jwt = token.substring(7);
+            }
+
+            String email = jwtService.extractUsername(jwt);
+            Person person = personRepository.findByEmail(email).orElse(null);
+
+            if (person == null) {
+                return ResponseEntityBuilder.create()
+                        .withStatus(HttpStatus.NOT_FOUND)
+                        .withMessage("User not found")
+                        .build();
+            }
+
+            if (!jwtService.isTokenValid(jwt, person)) {
+                return ResponseEntityBuilder.create()
+                        .withStatus(HttpStatus.UNAUTHORIZED)
+                        .withMessage("Invalid or expired token")
+                        .build();
+            }
+
+            String newToken = jwtService.generateToken(person);
+            AuthResponse authResponse = personResponseMapper.toAuthResponse(person, newToken);
+
+            return ResponseEntityBuilder.create()
+                    .withStatus(HttpStatus.OK)
+                    .withData("User", authResponse)
+                    .withMessage("Token refreshed successfully!")
+                    .build();
+        } catch (Exception e) {
+            return ResponseEntityBuilder.create()
+                    .withStatus(HttpStatus.UNAUTHORIZED)
+                    .withMessage("Invalid token")
+                    .build();
+        }
     }
 
     @Override
     public ResponseEntity<ApiResponse> me() {
-        return null;
-    }
+        Person currentUser = authUtils.getCurrentUser();
 
+        if (currentUser == null) {
+            return ResponseEntityBuilder.create()
+                    .withStatus(HttpStatus.UNAUTHORIZED)
+                    .withMessage("User not authenticated")
+                    .build();
+        }
+
+        Person person = personRepository.findById(currentUser.getId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        ProfileResponse profileResponse = personResponseMapper.toProfileDto(person);
+
+        return ResponseEntityBuilder.create()
+                .withStatus(HttpStatus.OK)
+                .withData("User", profileResponse)
+                .withMessage("User profile retrieved successfully!")
+                .build();
+    }
 }

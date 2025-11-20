@@ -15,9 +15,5 @@ public interface IEnrollmentService {
 
     ResponseEntity<ApiResponse> deleteEnrollment(String id);
 
-    ResponseEntity<ApiResponse> enrollStudent(String studentId, String classId);
-
-    ResponseEntity<ApiResponse> dropStudent(String studentId, String enrollmentId);
-
     ResponseEntity<ApiResponse> updateGrade(String id, String grade);
 }

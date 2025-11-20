@@ -12,14 +12,13 @@ import java.util.Set;
 public interface UserMapper {
 
     @Mapping(target = "role", source = "personRoles", qualifiedByName = "mapPersonRolesToRole")
-    PersonDto toPersonDto(Person person);
+    PersonRequestDto toPersonDto(Person person);
 
     @Mapping(target = "personRoles", source = "role", qualifiedByName = "mapRoleToPersonRoles")
-    @Mapping(target = "password", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "version", ignore = true)
-    Person toPerson(PersonDto personDto);
+    Person toPerson(PersonRequestDto personRequestDto);
 
     @Mapping(target = "person", source = "person")
     @Mapping(target = "createdAt", ignore = true)

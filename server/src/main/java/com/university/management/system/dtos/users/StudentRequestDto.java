@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,15 +16,22 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StudentRequestDto {
+    @NotNull
     @NotBlank
     private String firstName;
 
+    @NotNull
     @NotBlank
     private String lastName;
 
-    @NotBlank
+    @NotNull
     @Email
     private String email;
+
+    @NotNull
+    @NotBlank
+    @Length(min = 8, max = 255)
+    private String password;
 
     private String phone;
 

@@ -14,4 +14,10 @@ public interface IStudentService {
     ResponseEntity<ApiResponse> updateStudent(String id, StudentRequestDto studentRequestDto);
 
     ResponseEntity<ApiResponse> deleteStudent(String id);
+
+    ResponseEntity<ApiResponse> getStudentEnrollments(Integer page, Integer size);
+
+    ResponseEntity<ApiResponse> enrollStudent(String classId);
+
+    ResponseEntity<ApiResponse> dropStudent(String enrollmentId);
 }

@@ -9,8 +9,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static com.university.management.system.utils.Constants.API_VERSION;
+
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping(API_VERSION + "/auth")
 @RequiredArgsConstructor
 public class AuthenticationController {
 
