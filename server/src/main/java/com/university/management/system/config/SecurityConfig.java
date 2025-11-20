@@ -15,8 +15,8 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -74,7 +74,13 @@ public class SecurityConfig {
 
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
-        return (HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) -> {
-        }
+        return (HttpServletRequest request, HttpServletResponse response,
+                AccessDeniedException accessDeniedException) -> {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"timestamp\":\"" + Instant.now() +
+                    "\",\"status\":403,\"error\":\"Forbidden\",\"message\": \"Access Denied\",\"path\":\""
+                    + request.getRequestURI() + "\"}");
+        };
     }
 }

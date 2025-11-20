@@ -26,7 +26,7 @@ public class WebConfig {
     }
 
     @Bean
-    public AuthenticationEntryPoint accessDeniedHandler() {
+    public AuthenticationEntryPoint authenticationEntryPoint() {
         return (HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) -> {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");

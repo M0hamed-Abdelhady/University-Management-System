@@ -64,7 +64,7 @@ public class Person extends AbstractEntity implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return personRoles.stream()
-                .map(role -> new SimpleGrantedAuthority(role.getRole().name()))
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getRole().name()))
                 .collect(Collectors.toList());
     }
 

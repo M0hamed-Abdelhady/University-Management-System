@@ -1,6 +1,7 @@
 package com.university.management.system.services.users;
 
 import com.university.management.system.dtos.ApiResponse;
+import com.university.management.system.dtos.users.PersonDto;
 import com.university.management.system.dtos.users.PersonRequestDto;
 import com.university.management.system.models.users.Person;
 import com.university.management.system.repositories.users.PersonRepository;
@@ -35,7 +36,7 @@ public class PersonService implements IPersonService {
         Pageable pageable = repositoryUtils.getPageable(page, size, Sort.Direction.ASC, "createdAt");
         Page<Person> persons = personRepository.findAll(pageable);
 
-        List<PersonRequestDto> response = persons
+        List<PersonDto> response = persons
                 .map(userMapper::toPersonDto)
                 .toList();
 
@@ -68,6 +69,7 @@ public class PersonService implements IPersonService {
         }
 
         Person person = userMapper.toPerson(personRequestDto);
+        person.setPassword(passwordEncoder.encode(person.getPassword()));
         Person savedPerson = personRepository.save(person);
 
         return ResponseEntityBuilder.create()

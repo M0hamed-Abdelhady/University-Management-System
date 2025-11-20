@@ -6,13 +6,21 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
     @Mapping(target = "role", source = "personRoles", qualifiedByName = "mapPersonRolesToRole")
-    PersonRequestDto toPersonDto(Person person);
+    PersonDto toPersonDto(Person person);
+
+    @Mapping(target = "personRoles", source = "role", qualifiedByName = "mapRoleToPersonRoles")
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "version", ignore = true)
+    @Mapping(target = "password", ignore = true) // PersonDto doesn't have password
+    Person toPerson(PersonDto personDto);
 
     @Mapping(target = "personRoles", source = "role", qualifiedByName = "mapRoleToPersonRoles")
     @Mapping(target = "createdAt", ignore = true)
@@ -45,7 +53,7 @@ public interface UserMapper {
         if (role == null) {
             return null;
         }
-        return Set.of(PersonRole.builder().role(role).build());
+        return new HashSet<>(Set.of(PersonRole.builder().role(role).build()));
     }
 
     @Named("mapPersonRolesToRole")

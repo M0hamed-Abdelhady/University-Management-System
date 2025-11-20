@@ -5,6 +5,7 @@ import com.university.management.system.models.users.Employee;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -33,7 +34,7 @@ public class CourseClass extends AbstractEntity {
 
     private Integer academicYear;
 
-    @Positive
+    @PositiveOrZero
     private Integer currentCapacity;
 
     @Positive

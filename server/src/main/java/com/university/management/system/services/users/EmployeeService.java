@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -90,7 +91,8 @@ public class EmployeeService implements IEmployeeService {
 
         personService.createPerson(personRequestDto);
         Person person = personRepository.findByEmail(employeeRequestDto.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("Person not found with email: " + employeeRequestDto.getEmail()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Person not found with email: " + employeeRequestDto.getEmail()));
 
         PersonRole employeeRole = PersonRole.builder()
                 .person(person)
@@ -98,7 +100,7 @@ public class EmployeeService implements IEmployeeService {
                 .build();
 
         personRoleRepository.save(employeeRole);
-        person.setPersonRoles(Collections.singleton(employeeRole));
+        person.setPersonRoles(new HashSet<>(Collections.singleton(employeeRole)));
         person = personRepository.save(person);
 
         Employee employee = Employee.builder()
