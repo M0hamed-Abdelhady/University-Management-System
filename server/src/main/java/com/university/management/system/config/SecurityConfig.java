@@ -72,7 +72,7 @@ public class SecurityConfig {
         configuration.addAllowedOrigin("http://localhost:5173");
         
         // Production origin - Add your frontend URL here when deploying
-        // configuration.addAllowedOrigin("https://your-frontend-domain.com");
+        configuration.addAllowedOrigin("https://ums-eg.vercel.app");
         
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
