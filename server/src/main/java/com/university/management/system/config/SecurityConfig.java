@@ -50,7 +50,9 @@ public class SecurityConfig {
                 .securityMatcher("/api/**")
                 .authorizeHttpRequests(authorize -> authorize
                         .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR).permitAll()
-                        .requestMatchers(Constants.API_VERSION + "/auth/**").permitAll()
+                        .requestMatchers(Constants.API_VERSION + "/auth/register").permitAll()
+                        .requestMatchers(Constants.API_VERSION + "/auth/login").permitAll()
+                        .requestMatchers(Constants.API_VERSION + "/auth/refresh").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))

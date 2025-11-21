@@ -2,6 +2,7 @@ package com.university.management.system.services.users;
 
 import com.university.management.system.dtos.ApiResponse;
 import com.university.management.system.dtos.users.EmployeeRequestDto;
+import com.university.management.system.dtos.users.EmployeeUpdateDto;
 import org.springframework.http.ResponseEntity;
 
 public interface IEmployeeService {
@@ -11,7 +12,9 @@ public interface IEmployeeService {
 
     ResponseEntity<ApiResponse> createEmployee(EmployeeRequestDto employeeRequestDto);
 
-    ResponseEntity<ApiResponse> updateEmployee(String id, EmployeeRequestDto employeeRequestDto);
+    ResponseEntity<ApiResponse> updateEmployee(String id, EmployeeUpdateDto employeeUpdateDto);
 
     ResponseEntity<ApiResponse> deleteEmployee(String id);
+
+    ResponseEntity<ApiResponse> getProfile();
 }

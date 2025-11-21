@@ -3,6 +3,7 @@ package com.university.management.system.controllers.auth;
 import com.university.management.system.dtos.ApiResponse;
 import com.university.management.system.dtos.auth.LoginRequest;
 import com.university.management.system.dtos.auth.RegisterRequest;
+import com.university.management.system.dtos.auth.UpdateProfileRequest;
 import com.university.management.system.services.auth.IAuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,5 +37,10 @@ public class AuthenticationController {
     @GetMapping("/me")
     public ResponseEntity<ApiResponse> me() {
         return authenticationService.me();
+    }
+
+    @PutMapping("/me")
+    public ResponseEntity<ApiResponse> updateProfile(@Valid @RequestBody UpdateProfileRequest updateProfileRequest){
+        return authenticationService.updateProfile(updateProfileRequest);
     }
 }

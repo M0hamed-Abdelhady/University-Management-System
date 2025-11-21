@@ -2,8 +2,8 @@ package com.university.management.system.controllers.users;
 
 import com.university.management.system.dtos.ApiResponse;
 import com.university.management.system.dtos.users.StudentRequestDto;
+import com.university.management.system.dtos.users.StudentUpdateDto;
 import com.university.management.system.services.users.IStudentService;
-import com.university.management.system.services.courses.IEnrollmentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,6 @@ import static com.university.management.system.utils.Constants.API_VERSION;
 public class StudentController {
 
     private final IStudentService studentService;
-    private final IEnrollmentService enrollmentService;
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
@@ -43,8 +42,8 @@ public class StudentController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> updateStudent(
             @PathVariable String id,
-            @Valid @RequestBody StudentRequestDto studentRequestDto) {
-        return studentService.updateStudent(id, studentRequestDto);
+            @Valid @RequestBody StudentUpdateDto studentUpdateDto) {
+        return studentService.updateStudent(id, studentUpdateDto);
     }
 
     @DeleteMapping("/{id}")
@@ -68,5 +67,24 @@ public class StudentController {
     @PostMapping("/drop/{enrollmentId}")
     public ResponseEntity<ApiResponse> dropStudent(@PathVariable String enrollmentId) {
         return studentService.dropStudent(enrollmentId);
+    }
+
+    @GetMapping("/classes")
+    public ResponseEntity<ApiResponse> getStudentClasses(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "20") Integer size) {
+        return studentService.getStudentClasses(page, size);
+    }
+
+    @PutMapping("/{id}/gpa")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
+    public ResponseEntity<ApiResponse> updateGPA(@PathVariable String id) {
+        return studentService.updateGPA(id);
+    }
+
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<ApiResponse> getProfile() {
+        return studentService.getProfile();
     }
 }

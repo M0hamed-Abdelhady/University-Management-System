@@ -2,6 +2,7 @@ package com.university.management.system.services.users;
 
 import com.university.management.system.dtos.ApiResponse;
 import com.university.management.system.dtos.users.StudentRequestDto;
+import com.university.management.system.dtos.users.StudentUpdateDto;
 import org.springframework.http.ResponseEntity;
 
 public interface IStudentService {
@@ -11,7 +12,7 @@ public interface IStudentService {
 
     ResponseEntity<ApiResponse> createStudent(StudentRequestDto studentRequestDto);
 
-    ResponseEntity<ApiResponse> updateStudent(String id, StudentRequestDto studentRequestDto);
+    ResponseEntity<ApiResponse> updateStudent(String id, StudentUpdateDto studentUpdateDto);
 
     ResponseEntity<ApiResponse> deleteStudent(String id);
 
@@ -20,4 +21,10 @@ public interface IStudentService {
     ResponseEntity<ApiResponse> enrollStudent(String classId);
 
     ResponseEntity<ApiResponse> dropStudent(String enrollmentId);
+
+    ResponseEntity<ApiResponse> getStudentClasses(Integer page, Integer size);
+
+    ResponseEntity<ApiResponse> updateGPA(String id);
+
+    ResponseEntity<ApiResponse> getProfile();
 }

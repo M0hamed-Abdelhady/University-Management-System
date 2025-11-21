@@ -1,12 +1,16 @@
 package com.university.management.system.services.users;
 
 import com.university.management.system.dtos.ApiResponse;
+import com.university.management.system.dtos.courses.CourseClassDto;
 import com.university.management.system.dtos.courses.EnrollmentDto;
 import com.university.management.system.dtos.courses.EnrollmentRequestDto;
 import com.university.management.system.dtos.users.PersonRequestDto;
 import com.university.management.system.dtos.users.StudentDto;
 import com.university.management.system.dtos.users.StudentRequestDto;
+import com.university.management.system.dtos.users.StudentUpdateDto;
 import com.university.management.system.exceptions.ResourceNotFoundException;
+import com.university.management.system.models.courses.Course;
+import com.university.management.system.models.courses.CourseClass;
 import com.university.management.system.models.courses.Enrollment;
 import com.university.management.system.models.courses.EnrollmentStatus;
 import com.university.management.system.models.users.Person;
@@ -20,6 +24,7 @@ import com.university.management.system.repositories.users.PersonRoleRepository;
 import com.university.management.system.repositories.users.StudentRepository;
 import com.university.management.system.services.courses.EnrollmentService;
 import com.university.management.system.utils.AuthUtils;
+import com.university.management.system.utils.GradesUtils;
 import com.university.management.system.utils.RepositoryUtils;
 import com.university.management.system.utils.ResponseEntityBuilder;
 import com.university.management.system.utils.mappers.courses.CourseMapper;
@@ -34,6 +39,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -54,6 +61,7 @@ public class StudentService implements IStudentService {
     private final PasswordEncoder passwordEncoder;
     private final RepositoryUtils repositoryUtils;
     private final AuthUtils authUtils;
+    private final GradesUtils gradesUtils;
 
     @Override
     public ResponseEntity<ApiResponse> getAllStudents(Integer page, Integer size) {
@@ -136,22 +144,22 @@ public class StudentService implements IStudentService {
 
     @Override
     @Transactional
-    public ResponseEntity<ApiResponse> updateStudent(String id, StudentRequestDto studentRequestDto) {
+    public ResponseEntity<ApiResponse> updateStudent(String id, StudentUpdateDto studentUpdateDto) {
         Student student = studentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Student not found with id: " + id));
 
         Person person = student.getPerson();
-        person.setFirstName(studentRequestDto.getFirstName());
-        person.setLastName(studentRequestDto.getLastName());
-        person.setPhone(studentRequestDto.getPhone());
-        person.setAddress(studentRequestDto.getAddress());
-        person.setDateOfBirth(studentRequestDto.getDateOfBirth());
+        person.setFirstName(studentUpdateDto.getFirstName());
+        person.setLastName(studentUpdateDto.getLastName());
+        person.setPhone(studentUpdateDto.getPhone());
+        person.setAddress(studentUpdateDto.getAddress());
+        person.setDateOfBirth(studentUpdateDto.getDateOfBirth());
         personRepository.save(person);
 
-        student.setMajor(studentRequestDto.getMajor());
-        student.setAcademicYear(studentRequestDto.getAcademicYear());
-        student.setGpa(studentRequestDto.getGpa());
-        student.setStatus(studentRequestDto.getStatus());
+        student.setMajor(studentUpdateDto.getMajor());
+        student.setAcademicYear(studentUpdateDto.getAcademicYear());
+        student.setGpa(studentUpdateDto.getGpa());
+        student.setStatus(studentUpdateDto.getStatus());
 
         Student savedStudent = studentRepository.save(student);
 
@@ -215,6 +223,13 @@ public class StudentService implements IStudentService {
             throw new ResourceNotFoundException("Course Class not found");
         }
 
+        if (enrollmentRepository.existsByStudentIdAndCourseClassId(student.getId(), classId)) {
+            return ResponseEntityBuilder.create()
+                    .withStatus(HttpStatus.BAD_REQUEST)
+                    .withMessage("Student is already enrolled in this class")
+                    .build();
+        }
+
         EnrollmentRequestDto enrollmentRequestDto = EnrollmentRequestDto.builder()
                 .studentId(student.getId())
                 .classId(classId)
@@ -241,5 +256,86 @@ public class StudentService implements IStudentService {
         }
 
         return enrollmentService.deleteEnrollment(enrollmentId);
+    }
+
+    @Override
+    public ResponseEntity<ApiResponse> getStudentClasses(Integer page, Integer size) {
+        String personId = authUtils.getCurrentUserId();
+        Student student = studentRepository.findByPersonId(personId)
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
+
+        List<Enrollment> enrolledClasses = enrollmentRepository.findAllByStudentId(student.getId());
+
+        Pageable pageable = repositoryUtils.getPageable(page, size, Sort.Direction.ASC, "createdAt");
+
+        Page<CourseClass> classes;
+        List<String> enrolledClassIds = enrolledClasses.stream()
+                .map(enrollment -> enrollment.getCourseClass().getId())
+                .toList();
+
+        if (enrolledClassIds.isEmpty()) {
+            classes = courseClassRepository.findAll(pageable);
+        } else {
+            classes = courseClassRepository.findAllByIdNotIn(enrolledClassIds, pageable);
+        }
+
+        List<CourseClassDto> response = classes.map(courseMapper::toCourseClassDto).toList();
+
+        return ResponseEntityBuilder.create()
+                .withStatus(HttpStatus.OK)
+                .withData("Classes", response)
+                .withData("TotalPages", classes.getTotalPages())
+                .withData("TotalElements", classes.getTotalElements())
+                .withMessage("Classes retrieved successfully")
+                .build();
+    }
+
+    @Override
+    public ResponseEntity<ApiResponse> updateGPA(String id) {
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found with id: " + id));
+
+        List<Enrollment> enrollments = enrollmentRepository.findAllByStudentId(student.getId());
+        double totalCredits = 0.0;
+        double totalGradePoints = 0.0;
+
+        for (Enrollment enrollment : enrollments) {
+            if (enrollment.getGrade() != null && !enrollment.getGrade().isEmpty()) {
+                CourseClass courseClass = enrollment.getCourseClass();
+                Course course = courseClass.getCourse();
+                Integer credits = course.getCredits();
+
+                if (credits != null && credits > 0) {
+                    Double gradePoint = gradesUtils.convertGradeToPoint(enrollment.getGrade());
+                    totalCredits += credits;
+                    totalGradePoints += gradePoint * credits;
+                }
+            }
+        }
+        BigDecimal gpa = totalCredits > 0
+                ? BigDecimal.valueOf(totalGradePoints / totalCredits).setScale(2, RoundingMode.HALF_UP)
+                : BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+        student.setGpa(gpa);
+        Student savedStudent = studentRepository.save(student);
+
+        return ResponseEntityBuilder.create()
+                .withStatus(HttpStatus.OK)
+                .withData("Student", userMapper.toStudentDto(savedStudent))
+                .withData("GPA", gpa)
+                .withMessage("GPA updated successfully")
+                .build();
+    }
+
+    @Override
+    public ResponseEntity<ApiResponse> getProfile() {
+        String personId = authUtils.getCurrentUserId();
+        Student student = studentRepository.findByPersonId(personId)
+                .orElseThrow(() -> new ResourceNotFoundException("Student profile not found"));
+
+        return ResponseEntityBuilder.create()
+                .withStatus(HttpStatus.OK)
+                .withData("Student", userMapper.toStudentDto(student))
+                .withMessage("Student profile retrieved successfully")
+                .build();
     }
 }

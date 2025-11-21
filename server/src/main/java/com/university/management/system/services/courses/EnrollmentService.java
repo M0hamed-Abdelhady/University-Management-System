@@ -10,7 +10,6 @@ import com.university.management.system.models.users.Student;
 import com.university.management.system.repositories.courses.CourseClassRepository;
 import com.university.management.system.repositories.courses.EnrollmentRepository;
 import com.university.management.system.repositories.users.StudentRepository;
-import com.university.management.system.utils.AuthUtils;
 import com.university.management.system.utils.RepositoryUtils;
 import com.university.management.system.utils.ResponseEntityBuilder;
 import com.university.management.system.utils.mappers.courses.CourseMapper;
@@ -34,7 +33,6 @@ public class EnrollmentService implements IEnrollmentService {
     private final CourseClassRepository courseClassRepository;
     private final CourseMapper courseMapper;
     private final RepositoryUtils repositoryUtils;
-    private final AuthUtils authUtils;
 
     @Override
     public ResponseEntity<ApiResponse> getAllEnrollments(Integer page, Integer size) {
@@ -162,6 +160,7 @@ public class EnrollmentService implements IEnrollmentService {
         Enrollment enrollment = enrollmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Enrollment not found"));
 
+        grade = grade.toUpperCase();
         enrollment.setGrade(grade);
         Enrollment savedEnrollment = enrollmentRepository.save(enrollment);
 

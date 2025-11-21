@@ -22,4 +22,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, String> {
     Page<Employee> findByStatus(EmployeeStatus status, Pageable pageable);
 
     Page<Employee> findByPositionAndStatus(Position position, EmployeeStatus status, Pageable pageable);
+
+    Optional<Employee> findByPersonId(String personId);
+
+    boolean existsByPersonId(String personId);
 }

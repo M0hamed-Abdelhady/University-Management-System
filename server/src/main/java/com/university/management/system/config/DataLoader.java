@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 @Component
-@Profile({"test", "dev", "default"})
+@Profile({ "test", "prod" })
 @AllArgsConstructor
 @Slf4j
 public class DataLoader implements CommandLineRunner {

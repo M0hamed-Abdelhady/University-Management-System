@@ -1,10 +1,7 @@
 package com.university.management.system.services.auth;
 
 import com.university.management.system.dtos.ApiResponse;
-import com.university.management.system.dtos.auth.AuthResponse;
-import com.university.management.system.dtos.auth.LoginRequest;
-import com.university.management.system.dtos.auth.ProfileResponse;
-import com.university.management.system.dtos.auth.RegisterRequest;
+import com.university.management.system.dtos.auth.*;
 import com.university.management.system.models.users.Person;
 import com.university.management.system.models.users.PersonRole;
 import com.university.management.system.models.users.Role;
@@ -167,6 +164,30 @@ public class AuthenticationService implements IAuthenticationService {
                 .withStatus(HttpStatus.OK)
                 .withData("User", profileResponse)
                 .withMessage("User profile retrieved successfully!")
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<ApiResponse> updateProfile(UpdateProfileRequest updateProfileRequest) {
+        String id = authUtils.getCurrentUserId();
+        Person person = personRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        person.setFirstName(updateProfileRequest.getFirstName());
+        person.setLastName(updateProfileRequest.getLastName());
+        person.setPhone(updateProfileRequest.getPhone());
+        person.setDateOfBirth(updateProfileRequest.getDateOfBirth());
+        person.setAddress(updateProfileRequest.getAddress());
+
+        person = personRepository.save(person);
+
+        ProfileResponse profileResponse = personResponseMapper.toProfileDto(person);
+
+        return ResponseEntityBuilder.create()
+                .withStatus(HttpStatus.OK)
+                .withData("User", profileResponse)
+                .withMessage("User profile updated successfully!")
                 .build();
     }
 }

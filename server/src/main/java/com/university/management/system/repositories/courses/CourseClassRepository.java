@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -17,9 +18,7 @@ public interface CourseClassRepository extends JpaRepository<CourseClass, String
 
     Page<CourseClass> findByStatus(CourseClassStatus status, Pageable pageable);
 
-    Page<CourseClass> findBySemester(String semester, Pageable pageable);
-
-    Page<CourseClass> findByAcademicYear(Integer academicYear, Pageable pageable);
-
     Optional<CourseClass> findByCourseAndSemesterAndAcademicYear(Course course, String semester, Integer academicYear);
+
+    Page<CourseClass> findAllByIdNotIn(List<String> list, Pageable pageable);
 }

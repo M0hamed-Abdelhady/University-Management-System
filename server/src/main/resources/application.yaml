@@ -1,40 +1,40 @@
 spring:
-  application:
-    name: server
-  profiles:
-    active: test
+    application:
+        name: server
+    profiles:
+        active: prod
 
-  jpa:
-    hibernate:
-      ddl-auto: validate
+    jpa:
+        hibernate:
+            ddl-auto: validate
 
-    properties:
-      hibernate:
-        format_sql: true
+        properties:
+            hibernate:
+                format_sql: true
 
 security:
-  jwt:
-    secret-key: ${JWT_SECRET_KEY}
-    expiration-time: ${JWT_EXPIRATION_TIME}
+    jwt:
+        secret-key: ${JWT_SECRET_KEY}
+        expiration-time: ${JWT_EXPIRATION_TIME}
 
 springdoc:
-  api-docs:
-    path: /v3/api-docs
-  swagger-ui:
-    path: /swagger-ui.html
-    enabled: true
-    try-it-out-enabled: true
-    operations-sorter: method
-    tags-sorter: alpha
-    doc-expansion: none
+    api-docs:
+        path: /v3/api-docs
+    swagger-ui:
+        path: /swagger-ui.html
+        enabled: true
+        try-it-out-enabled: true
+        operations-sorter: method
+        tags-sorter: alpha
+        doc-expansion: none
 
 logging:
-  level:
-    "com.university.management.system": trace
-    # org:
-    #   hibernate:
-    #     orm:
-    #       jdbc:
-    #         bind: trace
-    #     SQL: DEBUG
-    #     type.descriptor.sql.BasicBinder: trace
+    level:
+        'com.university.management.system': trace
+        # org:
+        #   hibernate:
+        #     orm:
+        #       jdbc:
+        #         bind: trace
+        #     SQL: DEBUG
+        #     type.descriptor.sql.BasicBinder: trace

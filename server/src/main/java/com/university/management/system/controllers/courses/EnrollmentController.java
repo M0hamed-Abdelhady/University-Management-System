@@ -51,8 +51,8 @@ public class EnrollmentController {
     }
 
     @PutMapping("/{id}/grade")
-    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
-    public ResponseEntity<ApiResponse> updateGrade(@PathVariable String id, @RequestParam String grade) {
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE') && @authorizationService.isValidGrade(#grade)")
+    public ResponseEntity<ApiResponse> updateGrade(@PathVariable String id, @RequestBody String grade) {
         return enrollmentService.updateGrade(id, grade);
     }
 }
