@@ -1,19 +1,19 @@
 FROM eclipse-temurin:21-jdk-alpine AS build
-WORKDIR /workspace/app
+WORKDIR /app
 
-COPY mvnw .
-COPY .mvn .mvn
-COPY pom.xml .
-COPY src src
+# Copy from server directory
+COPY server/mvnw .
+COPY server/.mvn .mvn
+COPY server/pom.xml .
+COPY server/src src
 
 RUN ./mvnw install -DskipTests
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
 
 FROM eclipse-temurin:21-jre-alpine
-# VOLUME /tmp has been removed as it is not supported by Railway builds.
-# If your app requires persistent storage, attach a Volume via the Railway dashboard.
+WORKDIR /app
 
-ARG DEPENDENCY=/workspace/app/target/dependency
+ARG DEPENDENCY=/app/target/dependency
 COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
 COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
 COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
