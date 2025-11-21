@@ -1,23 +1,25 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function Home() {
     const { user, loading } = useAuth();
     const router = useRouter();
+    const pathname = usePathname();
 
     useEffect(() => {
-        if (!loading) {
+        // Only redirect if we're actually on the root path
+        if (!loading && pathname === '/') {
             if (user) {
-                router.push('/dashboard');
+                router.replace('/dashboard');
             } else {
-                router.push('/login');
+                router.replace('/login');
             }
         }
-    }, [user, loading, router]);
+    }, [user, loading, router, pathname]);
 
     return (
         <div className="min-h-screen flex items-center justify-center">
