@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -33,6 +34,16 @@ public class SecurityConfig {
     private final AuthenticationEntryPoint authenticationEntryPoint;
 
     @Bean
+    @Order(1)
+    public SecurityFilterChain swaggerFilterChain(HttpSecurity http) throws Exception {
+        http.securityMatcher("/swagger-ui/**", "/v3/api-docs/**")
+                .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
+                .csrf(AbstractHttpConfigurer::disable);
+        return http.build();
+    }
+
+    @Bean
+    @Order(2)
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))

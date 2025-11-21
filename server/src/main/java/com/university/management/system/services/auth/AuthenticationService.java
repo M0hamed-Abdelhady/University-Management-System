@@ -39,7 +39,7 @@ public class AuthenticationService implements IAuthenticationService {
 
     @Override
     @Transactional
-    public ResponseEntity<ApiResponse> register(RegisterRequest registerRequest, Boolean isAdmin) {
+    public ResponseEntity<ApiResponse> register(RegisterRequest registerRequest) {
         if (personRepository.existsByEmail(registerRequest.getEmail())) {
             throw new RuntimeException("Email already exists: " + registerRequest.getEmail());
         }

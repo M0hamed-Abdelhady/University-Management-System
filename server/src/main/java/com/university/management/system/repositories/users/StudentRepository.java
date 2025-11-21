@@ -23,4 +23,6 @@ public interface StudentRepository extends JpaRepository<Student, String> {
     Page<Student> findByAcademicYear(Integer academicYear, Pageable pageable);
 
     boolean existsByPersonId(String personId);
+
+    Optional<Student> findByPersonId(String personId);
 }

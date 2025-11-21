@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 
 public interface IAuthenticationService {
 
-    ResponseEntity<ApiResponse> register(RegisterRequest registerRequest, Boolean isAdmin);
+    ResponseEntity<ApiResponse> register(RegisterRequest registerRequest);
     ResponseEntity<ApiResponse> login(LoginRequest loginRequest);
 
     ResponseEntity<ApiResponse> refreshToken(String token);

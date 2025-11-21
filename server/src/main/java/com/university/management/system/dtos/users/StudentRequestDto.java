@@ -50,5 +50,4 @@ public class StudentRequestDto {
 
     @NotNull
     private StudentStatus status;
-
 }

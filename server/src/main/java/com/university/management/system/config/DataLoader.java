@@ -2,14 +2,20 @@ package com.university.management.system.config;
 
 import com.university.management.system.models.courses.*;
 import com.university.management.system.models.users.*;
-import com.university.management.system.repositories.courses.*;
-import com.university.management.system.repositories.users.*;
-import jakarta.transaction.Transactional;
+import com.university.management.system.repositories.courses.CourseClassRepository;
+import com.university.management.system.repositories.courses.CourseRepository;
+import com.university.management.system.repositories.courses.CourseTeachingAssistantRepository;
+import com.university.management.system.repositories.courses.EnrollmentRepository;
+import com.university.management.system.repositories.users.EmployeeRepository;
+import com.university.management.system.repositories.users.PersonRepository;
+import com.university.management.system.repositories.users.StudentRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -19,8 +25,9 @@ import java.util.List;
 import java.util.Set;
 
 @Component
-@Profile("test")
+@Profile({"test", "dev", "default"})
 @AllArgsConstructor
+@Slf4j
 public class DataLoader implements CommandLineRunner {
     private final PersonRepository personRepository;
     private final EmployeeRepository employeeRepository;
@@ -31,11 +38,12 @@ public class DataLoader implements CommandLineRunner {
     private final EnrollmentRepository enrollmentRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    @Transactional
     public void loadData() {
+        log.info("DataLoader started - Loading initial data...");
         loadAdmins();
         loadUsers();
         loadUniversityData();
+        log.info("DataLoader completed successfully");
     }
 
     private void loadAdmins() {
@@ -203,6 +211,8 @@ public class DataLoader implements CommandLineRunner {
         }
 
         // 7. Enroll all Students in all ClassCourses
+        log.info("Starting enrollment creation...");
+        int enrollmentCount = 0;
         for (CourseClass courseClass : courseClasses) {
             for (Student student : students) {
                 Enrollment enrollment = Enrollment.builder()
@@ -211,15 +221,18 @@ public class DataLoader implements CommandLineRunner {
                         .status(EnrollmentStatus.ENROLLED)
                         .build();
                 enrollmentRepository.save(enrollment);
+                enrollmentCount++;
             }
             // Update capacity once per class
             courseClass.setCurrentCapacity(courseClass.getCurrentCapacity() + students.size());
             courseClassRepository.save(courseClass);
         }
+        log.info("Created {} enrollments successfully", enrollmentCount);
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    @Transactional
+    public void run(String... args) {
         loadData();
     }
 }

@@ -1,6 +1,5 @@
 package com.university.management.system.dtos.auth;
 
-import com.university.management.system.models.users.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -32,7 +31,4 @@ public class RegisterRequest {
     @NotBlank
     @Length(min = 8, max = 255)
     private String password;
-
-    @NotNull
-    private Role role;
 }
