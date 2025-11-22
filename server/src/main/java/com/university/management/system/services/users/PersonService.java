@@ -43,8 +43,11 @@ public class PersonService implements IPersonService {
         return ResponseEntityBuilder.create()
                 .withStatus(HttpStatus.OK)
                 .withData("Persons", response)
-                .withData("TotalPages", persons.getTotalPages())
-                .withData("TotalElements", persons.getTotalElements())
+                .withData("pagination", java.util.Map.of(
+                        "currentPage", persons.getNumber(),
+                        "totalPages", persons.getTotalPages(),
+                        "totalItems", persons.getTotalElements(),
+                        "pageSize", persons.getSize()))
                 .withMessage("Persons retrieved successfully")
                 .build();
     }

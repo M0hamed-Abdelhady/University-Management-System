@@ -39,8 +39,11 @@ public class CourseService implements ICourseService {
                 return ResponseEntityBuilder.create()
                                 .withStatus(HttpStatus.OK)
                                 .withData("Courses", response)
-                                .withData("TotalPages", courses.getTotalPages())
-                                .withData("TotalElements", courses.getTotalElements())
+                                .withData("pagination", java.util.Map.of(
+                                                "currentPage", courses.getNumber(),
+                                                "totalPages", courses.getTotalPages(),
+                                                "totalItems", courses.getTotalElements(),
+                                                "pageSize", courses.getSize()))
                                 .withMessage("Courses retrieved successfully")
                                 .build();
         }

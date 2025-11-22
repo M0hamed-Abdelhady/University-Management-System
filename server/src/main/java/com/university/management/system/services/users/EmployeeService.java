@@ -57,8 +57,11 @@ public class EmployeeService implements IEmployeeService {
                 return ResponseEntityBuilder.create()
                                 .withStatus(HttpStatus.OK)
                                 .withData("Employees", response)
-                                .withData("TotalPages", employees.getTotalPages())
-                                .withData("TotalElements", employees.getTotalElements())
+                                .withData("pagination", java.util.Map.of(
+                                                "currentPage", employees.getNumber(),
+                                                "totalPages", employees.getTotalPages(),
+                                                "totalItems", employees.getTotalElements(),
+                                                "pageSize", employees.getSize()))
                                 .withMessage("Employees retrieved successfully")
                                 .build();
         }
