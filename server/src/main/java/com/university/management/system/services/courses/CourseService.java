@@ -40,7 +40,7 @@ public class CourseService implements ICourseService {
                                 .withStatus(HttpStatus.OK)
                                 .withData("Courses", response)
                                 .withData("pagination", java.util.Map.of(
-                                                "currentPage", courses.getNumber(),
+                                                "currentPage", courses.getNumber() + 1,
                                                 "totalPages", courses.getTotalPages(),
                                                 "totalItems", courses.getTotalElements(),
                                                 "pageSize", courses.getSize()))

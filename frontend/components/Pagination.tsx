@@ -12,38 +12,36 @@ export default function Pagination({
     const pages = [];
     const maxPagesToShow = 5;
 
-    let startPage = Math.max(0, currentPage - Math.floor(maxPagesToShow / 2));
-    let endPage = Math.min(totalPages - 1, startPage + maxPagesToShow - 1);
+    let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+    let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
 
     if (endPage - startPage < maxPagesToShow - 1) {
-        startPage = Math.max(0, endPage - maxPagesToShow + 1);
+        startPage = Math.max(1, endPage - maxPagesToShow + 1);
     }
 
     for (let i = startPage; i <= endPage; i++) {
         pages.push(i);
     }
 
-    if (totalPages <= 1) return null;
-
     return (
         <div className="flex items-center justify-center space-x-2 mt-6">
             <button
                 onClick={() => onPageChange(currentPage - 1)}
-                disabled={currentPage === 0}
+                disabled={currentPage === 1}
                 className="px-4 py-2 rounded-lg border border-blue-200 text-gray-700 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
                 Previous
             </button>
 
-            {startPage > 0 && (
+            {startPage > 1 && (
                 <>
                     <button
-                        onClick={() => onPageChange(0)}
+                        onClick={() => onPageChange(1)}
                         className="px-4 py-2 rounded-lg border border-blue-200 text-gray-700 hover:bg-blue-50 transition-colors"
                     >
                         1
                     </button>
-                    {startPage > 1 && (
+                    {startPage > 2 && (
                         <span className="text-gray-500">...</span>
                     )}
                 </>
@@ -59,17 +57,17 @@ export default function Pagination({
                             : 'border-blue-200 text-gray-700 hover:bg-blue-50'
                     }`}
                 >
-                    {page + 1}
+                    {page}
                 </button>
             ))}
 
-            {endPage < totalPages - 1 && (
+            {endPage < totalPages && (
                 <>
-                    {endPage < totalPages - 2 && (
+                    {endPage < totalPages - 1 && (
                         <span className="text-gray-500">...</span>
                     )}
                     <button
-                        onClick={() => onPageChange(totalPages - 1)}
+                        onClick={() => onPageChange(totalPages)}
                         className="px-4 py-2 rounded-lg border border-blue-200 text-gray-700 hover:bg-blue-50 transition-colors"
                     >
                         {totalPages}
@@ -79,7 +77,7 @@ export default function Pagination({
 
             <button
                 onClick={() => onPageChange(currentPage + 1)}
-                disabled={currentPage === totalPages - 1}
+                disabled={currentPage === totalPages}
                 className="px-4 py-2 rounded-lg border border-blue-200 text-gray-700 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
                 Next

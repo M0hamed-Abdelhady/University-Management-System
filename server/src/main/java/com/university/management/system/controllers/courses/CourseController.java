@@ -20,7 +20,7 @@ public class CourseController {
 
     @GetMapping
     public ResponseEntity<ApiResponse> getAllCourses(
-            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
         return courseService.getAllCourses(page, size);
     }
@@ -39,7 +39,7 @@ public class CourseController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> updateCourse(@PathVariable String id,
-                                                    @Valid @RequestBody CourseRequestDto courseRequestDto) {
+            @Valid @RequestBody CourseRequestDto courseRequestDto) {
         return courseService.updateCourse(id, courseRequestDto);
     }
 

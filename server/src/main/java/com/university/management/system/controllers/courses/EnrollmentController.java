@@ -21,7 +21,7 @@ public class EnrollmentController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     public ResponseEntity<ApiResponse> getAllEnrollments(
-            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
         return enrollmentService.getAllEnrollments(page, size);
     }
@@ -40,7 +40,7 @@ public class EnrollmentController {
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     public ResponseEntity<ApiResponse> updateEnrollment(@PathVariable String id,
-                                                        @Valid @RequestBody EnrollmentRequestDto requestDto) {
+            @Valid @RequestBody EnrollmentRequestDto requestDto) {
         return enrollmentService.updateEnrollment(id, requestDto);
     }
 

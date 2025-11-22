@@ -37,7 +37,7 @@ export const authApi = {
 
 // Student APIs
 export const studentApi = {
-    getAll: (page = 0, size = 20) =>
+    getAll: (page = 1, size = 20) =>
         apiClient.get<{
             students: Student[];
             pagination: PaginatedResponse<Student>['pagination'];
@@ -56,7 +56,7 @@ export const studentApi = {
 
     delete: (id: string) => apiClient.delete(`/students/${id}`),
 
-    getEnrollments: (page = 0, size = 20) =>
+    getEnrollments: (page = 1, size = 20) =>
         apiClient.get<{
             enrollments: Enrollment[];
             pagination: PaginatedResponse<Enrollment>['pagination'];
@@ -73,7 +73,7 @@ export const studentApi = {
     updateGPA: (studentId: string) =>
         apiClient.put(`/students/${studentId}/gpa`),
 
-    getClasses: (page = 0, size = 10) =>
+    getClasses: (page = 1, size = 10) =>
         apiClient.get<{
             classes: CourseClass[];
             pagination: PaginatedResponse<CourseClass>['pagination'];
@@ -82,7 +82,7 @@ export const studentApi = {
 
 // Employee APIs
 export const employeeApi = {
-    getAll: (page = 0, size = 20) =>
+    getAll: (page = 1, size = 20) =>
         apiClient.get<{
             employees: Employee[];
             pagination: PaginatedResponse<Employee>['pagination'];
@@ -104,7 +104,7 @@ export const employeeApi = {
 
 // Course APIs
 export const courseApi = {
-    getAll: (page = 0, size = 10) =>
+    getAll: (page = 1, size = 10) =>
         apiClient.get<{
             courses: Course[];
             pagination: PaginatedResponse<Course>['pagination'];
@@ -124,7 +124,7 @@ export const courseApi = {
 
 // Course Class APIs
 export const courseClassApi = {
-    getAll: (page = 0, size = 10) =>
+    getAll: (page = 1, size = 10) =>
         apiClient.get<{
             classes: CourseClass[];
             pagination: PaginatedResponse<CourseClass>['pagination'];
@@ -150,7 +150,7 @@ export const courseClassApi = {
 
 // Enrollment APIs
 export const enrollmentApi = {
-    getAll: (page = 0, size = 10) =>
+    getAll: (page = 1, size = 10) =>
         apiClient.get<{
             enrollments: Enrollment[];
             pagination: PaginatedResponse<Enrollment>['pagination'];

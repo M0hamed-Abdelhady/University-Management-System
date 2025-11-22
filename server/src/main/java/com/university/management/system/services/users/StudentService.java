@@ -76,7 +76,7 @@ public class StudentService implements IStudentService {
                                 .withStatus(HttpStatus.OK)
                                 .withData("Students", response)
                                 .withData("pagination", java.util.Map.of(
-                                                "currentPage", students.getNumber(),
+                                                "currentPage", students.getNumber() + 1,
                                                 "totalPages", students.getTotalPages(),
                                                 "totalItems", students.getTotalElements(),
                                                 "pageSize", students.getSize()))
@@ -210,7 +210,7 @@ public class StudentService implements IStudentService {
                                 .withStatus(HttpStatus.OK)
                                 .withData("Enrollments", response)
                                 .withData("pagination", java.util.Map.of(
-                                                "currentPage", enrollments.getNumber(),
+                                                "currentPage", enrollments.getNumber() + 1,
                                                 "totalPages", enrollments.getTotalPages(),
                                                 "totalItems", enrollments.getTotalElements(),
                                                 "pageSize", enrollments.getSize()))
@@ -291,7 +291,7 @@ public class StudentService implements IStudentService {
                                 .withStatus(HttpStatus.OK)
                                 .withData("Classes", response)
                                 .withData("pagination", java.util.Map.of(
-                                                "currentPage", classes.getNumber(),
+                                                "currentPage", classes.getNumber() + 1,
                                                 "totalPages", classes.getTotalPages(),
                                                 "totalItems", classes.getTotalElements(),
                                                 "pageSize", classes.getSize()))

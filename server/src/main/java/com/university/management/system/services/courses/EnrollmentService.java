@@ -45,7 +45,7 @@ public class EnrollmentService implements IEnrollmentService {
                                 .withStatus(HttpStatus.OK)
                                 .withData("Enrollments", response)
                                 .withData("pagination", java.util.Map.of(
-                                                "currentPage", enrollments.getNumber(),
+                                                "currentPage", enrollments.getNumber() + 1,
                                                 "totalPages", enrollments.getTotalPages(),
                                                 "totalItems", enrollments.getTotalElements(),
                                                 "pageSize", enrollments.getSize()))

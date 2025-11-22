@@ -16,7 +16,7 @@ export default function EnrollmentsPage() {
     const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [currentPage, setCurrentPage] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
     const [selectedEnrollment, setSelectedEnrollment] =
         useState<Enrollment | null>(null);

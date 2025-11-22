@@ -58,7 +58,7 @@ public class EmployeeService implements IEmployeeService {
                                 .withStatus(HttpStatus.OK)
                                 .withData("Employees", response)
                                 .withData("pagination", java.util.Map.of(
-                                                "currentPage", employees.getNumber(),
+                                                "currentPage", employees.getNumber() + 1,
                                                 "totalPages", employees.getTotalPages(),
                                                 "totalItems", employees.getTotalElements(),
                                                 "pageSize", employees.getSize()))

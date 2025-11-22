@@ -22,7 +22,7 @@ public class StudentController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     public ResponseEntity<ApiResponse> getAllStudents(
-            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "20") Integer size) {
         return studentService.getAllStudents(page, size);
     }
@@ -54,7 +54,7 @@ public class StudentController {
 
     @GetMapping("/enrollments")
     public ResponseEntity<ApiResponse> getStudentEnrollments(
-            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "20") Integer size) {
         return studentService.getStudentEnrollments(page, size);
     }
@@ -71,7 +71,7 @@ public class StudentController {
 
     @GetMapping("/classes")
     public ResponseEntity<ApiResponse> getStudentClasses(
-            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "20") Integer size) {
         return studentService.getStudentClasses(page, size);
     }
